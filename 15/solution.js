@@ -17,25 +17,28 @@ const directions = [
 
 const serialize = ([row, col]) => `${row}|${col}`;
 
-const sorter = (a, b) => a - b;
+const sorter = ([row1, col1], [row2, col2]) =>
+  input[row2][col2] - input[row1][col1];
 
 const p1 = () => {
   const minDistances = [];
+  h;
   const visited = [];
-  for (var i = 0; i < input.length; i++) {
+  for (let i = 0; i < input.length; i++) {
     minDistances[i] = [];
     visited[i] = [];
-    for (var j = 0; j < input[0].length; j++) {
+    for (let j = 0; j < input[0].length; j++) {
       minDistances[i][j] = Number.MAX_SAFE_INTEGER;
       visited[i][j] = false;
     }
   }
   const queue = [[0, 0]];
+  minDistances[0][0] = 0;
 
   while (queue.length) {
     const [nextRow, nextCol] = queue.pop();
-    console.log(nextRow, nextCol)
-    console.log(minDistances)
+    if (visited[nextRow][nextCol]) continue;
+    console.log(nextRow, nextCol, queue.length);
     directions.forEach(([dRow, dCol]) => {
       const newRow = dRow + nextRow;
       const newCol = dCol + nextCol;
@@ -43,72 +46,48 @@ const p1 = () => {
         return;
       }
       const newGuess = minDistances[nextRow][nextCol] + input[nextRow][nextCol];
-      minDistances[newRow][newCol] = Math.min(
-        minDistances[newRow][newCol],
-        newGuess
-      );
-      queue.push([newRow, newCol]);
-      queue.sort(sorter);
+      if (newGuess < minDistances[newRow][newCol]) {
+        minDistances[newRow][newCol] = newGuess;
+        queue.push([newRow, newCol]);
+        queue.sort(
+          ([row1, col1], [row2, col2]) =>
+            minDistances[row2][col2] - minDistances[row1][col1]
+        );
+      }
     });
     visited[nextRow][nextCol] = true;
   }
+  console.log(minDistances.map((line) => line.join("|")).join("\n"));
 
-  return minDistances[input.length - 1][input[0].length - 1];
+  return (
+    minDistances[input.length - 1][input[0].length - 1] +
+    input[input.length - 1][input[0].length - 1] -
+    input[0][0]
+  );
+};
 
-  //const recursive = ([startRow, startCol], visited) => {
-  //console.log(startRow, startCol);
-  //if (startRow === input.length - 1 && startCol === input[0].length - 1) {
-  //return 0;
-  //}
-  //if (!isValid([startRow, startCol])) {
-  //return 10000000;
-  //}
-  //const key = serialize([startRow, startCol]);
-  //if (visited[key] !== undefined) {
-  //return 10000000;
-  //}
-  //const newVisited = { ...visited, [key]: true };
-  //
-  //const options = directions.map(([dRow, dCol]) => {
-  //return recursive([startRow + dRow, startCol + dCol], newVisited);
-  //});
-  //const ret = input[startRow][startCol] + Math.min(...options);
-  //console.log(startRow, startCol, options, ret, visited);
-  ////memo[key] = ret;
-  //return ret;
-  // };
+const p2 = () => {
+  const bigGrid = [];
+  for (let i = 0; i < 5; i++) {
+    for (let j = 0; j < 5; j++) {
+      for (let row = 0; row < input.length; row++) {
+        for (let col = 0; col < input.length; col++) {
+          let number = input[row][col] + (i + j);
+          if (number > 9) {
+            number -= 9;
+          }
 
-  //return recursive([0, 0], {});
+          const finalRow = row + input.length * i;
+          const finalCol = col + input.length * j;
+          if (!bigGrid[finalRow]) bigGrid[finalRow] = [];
 
-  // const dp = [[0]];
-  // for (var i = 0; i < input.length; i++) {
-  //   if (!dp[i]) dp[i] = [];
-  //   for (var j = 0; j < input[0].length; j++) {
-  //     if (dp[i][j] === undefined) {
-  //       const possibilities = [];
-  //       if (i > 0) possibilities.push(dp[i - 1][j]);
-  //       if (j > 0) possibilities.push(dp[i][j - 1]);
-  //       console.log(possibilities, i, j);
-  //       dp[i][j] = input[i][j] + Math.min(...possibilities);
-  //     }
-  //   }
-  // }
+          bigGrid[finalRow][finalCol] = number;
+        }
+      }
+    }
+  }
 
-  // for (var i = input.length - 1; i >= 0; i--) {
-  //   for (var j = input[0].length - 1; j >= 0; j--) {
-  //     const possibilities = [];
-  //     if (i < input.length - 1) possibilities.push(dp[i + 1][j]);
-  //     if (j < input[0].length - 1) possibilities.push(dp[i][j + 1]);
-  //     const newCandidate = input[i][j] + Math.min(...possibilities);
-  //     dp[i][j] = Math.min(dp[i][j], newCandidate);
-  //   }
-  // }
-  // console.log(
-  //   dp
-  //     .map((line) => line.map((ch) => ("" + ch).padStart(4)).join("|"))
-  //     .join("\n")
-  // );
-  // return dp[input.length - 1][input[0].length - 1];
+  console.log(bigGrid);
 };
 
 console.log(p1());
