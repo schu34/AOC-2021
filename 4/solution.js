@@ -1,5 +1,4 @@
 const inputStr = require("fs").readFileSync("input.txt").toString();
-const readLines = require("../shared.js");
 
 const numbers = inputStr
   .split("\n")[0]
@@ -16,7 +15,7 @@ const readBoard = (str) =>
       .map((num) => parseInt(num.trim(), 10))
   );
 
-const boards = boardsStrs.map(readBoard);
+let boards = boardsStrs.map(readBoard);
 
 const markBoard = (number) => (board) => {
   for (let row = 0; row < board.length; row++) {
@@ -28,7 +27,52 @@ const markBoard = (number) => (board) => {
   }
 };
 
+const isAllNull = (array) => {
+  return array.every((elem) => elem === null);
+};
 
+const isWinningBoard = (board) => {
+  if (board.some(isAllNull)) return true;
+  for (let col = 0; col < board.length; col++) {
+    const colArray = [];
+    for (let row = 0; row < board.length; row++) {
+      colArray.push(board[row][col]);
+    }
+    if (isAllNull(colArray)) return true;
+  }
 
+  return false;
+};
 
-console.log(boards);
+scoreBoard = (arr) =>
+  arr
+    .flat()
+    .filter(Boolean)
+    .reduce((acc, next) => acc + next);
+
+const p1 = () => {
+  for (let i = 0; i < numbers.length; i++) {
+    const numToMark = numbers[i];
+    const marker = markBoard(numToMark);
+    boards.forEach(marker);
+    for (let boardIdx = 0; boardIdx < boards.length; boardIdx++) {
+      if (isWinningBoard(boards[boardIdx]))
+        return scoreBoard(boards[boardIdx]) * numToMark;
+    }
+  }
+};
+
+const p2 = () => {
+  for (let i = 0; i < numbers.length; i++) {
+    console.log(i);
+    const numToMark = numbers[i];
+    const marker = markBoard(numToMark);
+    boards.forEach(marker);
+    if (boards.length === 1 && isWinningBoard(boards[0])) {
+      return scoreBoard(boards[0]) * numToMark;
+    }
+    boards = boards.filter((board) => !isWinningBoard(board));
+  }
+};
+
+console.log(p2());
