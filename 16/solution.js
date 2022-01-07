@@ -24,7 +24,7 @@ const binary = input
   .map((x) => hexToBinary[x])
   .join("");
 
-console.log(binary)
+console.log(binary);
 
 const decodePacket = (start) => {
   const version = binary.slice(start, start + 3);
